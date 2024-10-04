@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jett Optics</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #0f0f1a;
+            color: #ffffff;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 2rem;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 2rem;
+            box-sizing: border-box;
+        }
+
+        .card-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #8a2be2;
+        }
+
+        .card-description {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 1.5rem;
+        }
+
+        #connectButton {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: linear-gradient(135deg, #8a2be2, #9400d3);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        #connectButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
+        }
+
+        #connectButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .account-info {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .account-address {
+            font-family: monospace;
+            word-break: break-all;
+            color: #a0a0a0;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #a0a0a0;
+            margin-top: 1rem;
+        }
+
+        .about-section {
+            text-align: center;
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .about-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #8a2be2;
+        }
+
+        .about-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .about-section p {
+            margin-bottom: 0.5rem;
+        }
+
+        .founder-email {
+            color: #3b82f6;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .founder-email:hover {
+            text-decoration: underline;
+        }
+
+        .community-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #8a2be2;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .community-link:hover {
+            background-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.5);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+            .card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            .about-section {
+                margin-top: 1rem;
+            }
+            .card-title {
+                font-size: 1.5rem;
+            }
+            .community-link {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main>
+            <div class="card">
+                <h2 class="card-title">Welcome to Jett Optics</h2>
+                <p class="card-description">Connect your Web3 wallet to get started</p>
+                <div id="content">
+                    <button id="connectButton">Connect Wallet</button>
+                </div>
+                <p class="footer">By connecting, you agree to Jett Optics' Terms of Service and Privacy Policy.</p>
+            </div>
+            <div class="about-section">
+                <h2>Spatial UI Messaging/ Encryption</h2>
+                <h3>About Us</h3>
+                <p>Contact: <a href="mailto:founder@jettoptics.io" class="founder-email">founder@jettoptics.io</a></p>
+                <p><a href="https://jettoptics.ai/login" class="community-link" target="_blank" rel="noopener noreferrer">𝕏 Community</a></p>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const content = document.getElementById('content');
+        let account = null;
+        const jettTokenAddress = '0xeadeff6fe33f71cc5e203cbfc76e0ba0f68b5671';
+        const jettTokenABI = await fetch('https://jettoptics.ai/login/abis/jettTokenABI.json').then(response => response.json());
+
+        async function connectWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                alert('MetaMask is not installed! Please install MetaMask.');
+                return;
+            }
+
+            try {
+                connectButton.disabled = true;
+                connectButton.innerHTML = '<span class="animate-spin">↻</span> Connecting...';
+
+                const targetChainId = '0x1';
+                const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+                if (currentChainId !== targetChainId) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: targetChainId }],
+                        });
+                    } catch (switchError) {
+                        console.error('Error switching network:', switchError);
+                        alert('Please switch to the Ethereum Mainnet to proceed.');
+                        return;
+                    }
+                }
+
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                account = accounts[0];
+                updateUI();
+
+                const web3 = new Web3(window.ethereum);
+                const jettTokenContract = new web3.eth.Contract(jettTokenABI, jettTokenAddress);
+
+                // Get JETT Token balance
+                const balance = await jettTokenContract.methods.balanceOf(account).call();
+                console.log('JETT Token Balance:', web3.utils.fromWei(balance, 'ether'));
+
+                // Adding functionality to authenticate using X API v2
+                authenticateWithXAPI();
+
+            } catch (error) {
+                if (error.code === 4001) {
+                    console.log('Please connect to MetaMask.');
+                    alert('Connection to MetaMask was rejected. Please try again.');
+                } else {
+                    console.error('An error occurred:', error);
+                    alert('An error occurred while connecting to MetaMask. Check the console for details.');
+                }
+            } finally {
+                connectButton.disabled = false;
+                connectButton.textContent = 'Connect Wallet';
+            }
+        }
+
+        function updateUI() {
+            if (account) {
+                content.innerHTML = `
+                    <div class="account-info">
+                        <p><strong>Connected Account:</strong></p>
+                        <p class="account-address">${account}</p>
+                        <button id="xAuthButton">Login with X</button>
+                    </div>
+                `;
+                document.getElementById('xAuthButton').addEventListener('click', authenticateWithXAPI);
+            } else {
+                content.innerHTML = `<button id="connectButton">Connect Wallet</button>`;
+                document.getElementById('connectButton').addEventListener('click', connectWallet);
+            }
+        }
+
+        async function authenticateWithXAPI() {
+            // Placeholder for actual X API v2 authentication
+            try {
+                const xHandle = prompt('Enter your X handle:');
+                if (xHandle) {
+                    console.log('Authenticating X handle:', xHandle);
+                    // Add actual API request to authenticate using X API v2
+                    alert(`Authenticated X handle: ${xHandle}`);
+                } else {
+                    alert('Authentication cancelled.');
+                }
+            } catch (error) {
+                console.error('An error occurred during X authentication:', error);
+                alert('An error occurred while authenticating with X. Check the console for details.');
+            }
+        }
+
+        connectButton.addEventListener('click', connectWallet);
+
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                account = accounts[0] || null;
+                updateUI();
+            });
+        }
+    </script>
+</body>
+</html>
